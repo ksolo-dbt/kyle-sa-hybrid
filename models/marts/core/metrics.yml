@@ -1,4 +1,4 @@
-version: 2
+version: 3
 
 
 metrics:
@@ -140,9 +140,9 @@ saved_queries:
         - total_profit
 
       group_by:
-        - TimeDimension('metric_time', 'day')
-        - Dimension('customer__region')
-        - Dimension('customer__nation')
+        - "TimeDimension('metric_time', 'day')"
+        - "Dimension('customer__region')"
+        - "Dimension('customer__nation')"
     exports:
       - name: sales_metrics_by_region
         config:
@@ -155,7 +155,7 @@ saved_queries:
       metrics:
         - cumulative_revenue_ttm
       group_by:
-        - TimeDimension('metric_time', 'day')
+        - "TimeDimension('metric_time', 'day')"
     exports:
       - name: cumulative_revenue
         config:

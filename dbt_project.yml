@@ -80,6 +80,18 @@ models:
         +materialized: table
         +grants:
           select: ['dashboard_user']
+      aggregates:
+        agg_ship_modes_dynamic_pivot:
+          +static_analysis: unsafe
+    
+    demo_examples:
+      utils:
+        all_days:
+          +static_analysis: unsafe
+    
+    utils:
+      time_spine_daily:
+        +static_analysis: unsafe
 seeds:
   analytics:
     snowflake_contract_rates:

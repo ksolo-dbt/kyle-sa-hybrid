@@ -1,3 +1,5 @@
+{# This macro generates YAML. We wrap it in a SQL comment block to make it valid SQL #}
+/*
 {{ codegen.generate_source(
     schema_name='tpch_sf001',
     database_name='raw',
@@ -6,4 +8,5 @@
     include_descriptions=False,
     name='tpch'
 ) }}
+*/
 

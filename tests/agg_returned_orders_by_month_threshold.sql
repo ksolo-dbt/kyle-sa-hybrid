@@ -1,7 +1,11 @@
+{# Changed from 'error' to 'warn' to use as a demo for testing capabilities
+   This test checks if return rate > 50% in the most recent month
+   When it fails (returns rows), it indicates high return rates
+   Use this to demonstrate: test failures, investigating data quality issues, and adjusting thresholds #}
 {{
     config(
         enabled=true,
-        severity='error',
+        severity='warn',
     )
 }}
 

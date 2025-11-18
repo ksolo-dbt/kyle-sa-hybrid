@@ -2,8 +2,8 @@
 
 {%- call statement('result', fetch_result=True) -%}
 
-    {# this pulls the unique ship modes from the fct_order_items table #}
-    select ship_mode from {{ ref('fct_order_items') }} group by 1 
+    -- this pulls the unique ship modes from the fct_order_items table
+    select distinct ship_mode from {{ ref('fct_order_items') }}
 
 {%- endcall %}
 

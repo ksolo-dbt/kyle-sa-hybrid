@@ -9,6 +9,7 @@ source as (
 renamed as (
 
     select
+        'movie reviews' as from_table,
         id as movie_review_id,
         movie_id,
         response_time as review_time,

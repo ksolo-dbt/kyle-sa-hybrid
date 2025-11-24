@@ -1,10 +1,8 @@
 /* Create a pivot table with dynamic columns based on the ship modes that are in the system */
 
 {%- call statement('result', fetch_result=True) -%}
-
     -- this pulls the unique ship modes from the fct_order_items table
     select distinct ship_mode from {{ ref('fct_order_items') }}
-
 {%- endcall %}
 
 {% set ship_modes = load_result('result').table.columns[0].values() %}

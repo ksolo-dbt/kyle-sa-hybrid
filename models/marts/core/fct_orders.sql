@@ -25,8 +25,7 @@ order_item_summary as (
         sum(net_item_sales_amount) as net_item_sales_amount,
         count_if( is_return = true ) as return_count
     from order_item
-    group by
-        1
+    group by 1
 ),
 final as (
 

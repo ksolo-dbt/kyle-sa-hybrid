@@ -13,7 +13,10 @@ models:
         enforced: true
       group: data_team
       access: public
-    description: Customer dimensions table
+    description: Customer dimensions table with semantic model
+    semantic_model:
+      enabled: true
+      name: dim_customers
     columns:
       - name: customer_key
         data_type: int
@@ -21,6 +24,9 @@ models:
         data_tests:
           - unique
           - not_null
+        entity:
+          type: primary
+          name: customer
       - name: region
         data_type: varchar(25)
         description: region name
@@ -30,6 +36,9 @@ models:
                 severity: warn
               arguments:
                 values: ['AFRICA', 'MIDDLE EAST', 'ASIA', 'EUROPE', 'AMERICA']
+        dimension:
+          type: categorical
+          name: customer_region
       - name: name
         data_type: varchar(25)
         description: customer id
@@ -39,6 +48,9 @@ models:
       - name: nation
         data_type: varchar(25)
         description: nation name
+        dimension:
+          type: categorical
+          name: customer_nation
       - name: phone_number
         data_type: varchar(15)
         description: phone number of the customer
@@ -48,12 +60,12 @@ models:
       - name: market_segment
         data_type: varchar(10)
         description: market segment of the customer
+        dimension:
+          type: categorical
+          name: customer_market_segment
       - name: lifetime_value
         data_type: int
         description: lifetime value for the customer
-      - name: tier_name
-        data_type: string
-        description: tier of the customer
       - name: is_high_value
         data_type: varchar(1)
         description: high revenue account
@@ -63,17 +75,18 @@ models:
       - name: is_low_value
         data_type: varchar(1)
         description: low revenue account
-    versions:
-      - v: 1
-        columns:
-          - include: all
-            exclude: [is_high_value, is_mid_value, is_low_value]
-        deprecation_date: 2024-08-31 00:00:00+00:00
-      - v: 2
-        columns:
-          - include: all
-            exclude: [tier_name]
-    latest_version: 2
+    derived_semantics:
+      entities: []
+      dimensions:
+        - name: customer_balance_segment
+          type: categorical
+          expr: |-
+            case
+              when account_balance < 0 then 'Bad Debt'
+              when account_balance < 2500 then 'Low'
+              when account_balance < 7500 then 'Medium'
+              else 'High'
+            end
 
   - name: dim_parts
     description: Parts dimensions table

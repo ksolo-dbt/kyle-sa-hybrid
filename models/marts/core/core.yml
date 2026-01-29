@@ -393,3 +393,50 @@ models:
         label: Average Revenue per Customer
         numerator: total_revenue
         denominator: total_customers
+
+# Cross-model metrics
+metrics:
+  - name: total_profit
+    description: The total profit for the business
+    type: derived
+    label: Total Profit
+    expr: revenue - expense
+    input_metrics:
+      - name: total_revenue
+        alias: revenue
+      - name: total_expense
+        alias: expense
+
+# Saved queries for metric exports
+saved_queries:
+  - name: metrics_sales_by_region
+    description: Relevant sales metrics by region
+    config:
+      cache:
+        enabled: true
+    query_params:
+      metrics:
+        - total_revenue
+        - total_expense
+        - total_profit
+
+      group_by:
+        - "TimeDimension('metric_time', 'day')"
+    exports:
+      - name: sales_metrics_by_region
+        config:
+          export_as: table
+          schema: aa_metrics
+
+  - name: metrics_cumulative_revenue_total
+    description: Cumulative total revenue
+    query_params:
+      metrics:
+        - cumulative_revenue_ttm
+      group_by:
+        - "TimeDimension('metric_time', 'day')"
+    exports:
+      - name: cumulative_revenue
+        config:
+          export_as: table
+          schema: aa_metrics

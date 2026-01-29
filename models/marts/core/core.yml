@@ -99,25 +99,49 @@ models:
         description: '{{ doc("retail_price") }}'
 
   - name: dim_suppliers
-    description: Suppliers dimensions table
+    description: "Suppliers dimensions tableSuppliers dimensions tableSupplier dimension table containing supplier details and their geographical information\n"
     columns:
       - name: supplier_key
         description: primary key of the model
         data_tests:
           - unique
           - not_null
+        entity:
+          type: primary
+          name: supplier
       - name: supplier_name
         description: '{{ doc("supplier_name") }}'
       - name: supplier_address
         description: '{{ doc("supplier_address") }}'
       - name: nation
         description: nation name
+        dimension:
+          type: categorical
+          name: supplier_nation
       - name: region
         description: region name
+        dimension:
+          type: categorical
+          name: supplier_region
       - name: phone_number
         description: '{{ doc("phone_number") }}'
       - name: account_balance
         description: '{{ doc("account_balance") }}'
+    semantic_model:
+      enabled: true
+      name: dim_suppliers
+    derived_semantics:
+      entities: []
+      dimensions:
+        - name: supplier_account_balance
+          type: categorical
+          expr: |
+            case
+              when account_balance < 0 then 'Negative Balance'
+              when account_balance < 5000 then 'Low'
+              when account_balance < 15000 then 'Medium'
+              else 'High'
+            end
   - name: fct_order_items
     data_tests:
       - dbt_expectations.expect_table_aggregation_to_equal_other_table:
@@ -127,23 +151,38 @@ models:
             compare_model: ref("fct_orders")
             compare_expression: sum(net_item_sales_amount)
             group_by: [order_key]
-    description: order items fact table
+    description: "order items fact tableorder items fact tableLine items for an order.  An order_key can be represented multiple times\nin this table\n"
     columns:
       - name: order_item_key
         description: '{{ doc("order_item_key") }}'
         data_tests:
           - unique
           - not_null
+        entity:
+          type: primary
+          name: order_item
       - name: order_key
         description: foreign key for orders
+        entity:
+          type: foreign
+          name: customer_order
       - name: order_date
         description: date of the order
+        dimension:
+          type: time
+        granularity: day
       - name: customer_key
         description: foreign key for customers
+        entity:
+          type: foreign
+          name: customer
       - name: part_key
         description: foreign key for part
       - name: supplier_key
         description: foreign key for suppliers
+        entity:
+          type: foreign
+          name: supplier
       - name: order_item_status_code
         description: status of the order item
       - name: return_flag
@@ -189,14 +228,64 @@ models:
     config:
       group: data_team
       access: public
+    semantic_model:
+      enabled: true
+      name: fct_order_items
+    agg_time_dimension: order_date
+    metrics:
+      - name: total_expense
+        description: The total expense for the business
+        type: simple
+        label: Total Expenses
+        agg: sum
+        expr: supplier_cost
+      - name: total_supplier_revenue
+        description: The total net revenue by supplier
+        type: simple
+        label: Total Supplier Revenue
+        agg: sum
+        expr: net_item_sales_amount
+      - name: total_supplier_gross_revenue
+        description: The total gross revenue by supplier
+        type: simple
+        label: Total Supplier Gross Revenue
+        agg: sum
+        expr: gross_item_sales_amount
+      - name: total_items_sold
+        description: The total number of items sold
+        type: simple
+        label: Total Items Sold
+        agg: sum
+        expr: quantity
+      - name: total_gross_sales
+        description: The total gross sales amount
+        type: simple
+        label: Total Gross Sales
+        agg: sum
+        expr: gross_item_sales_amount
+      - name: average_gross_sales
+        description: The average gross sales amount
+        type: simple
+        label: Average Gross Sales
+        agg: average
+        expr: gross_item_sales_amount
+      - name: average_items_per_sale
+        description: The average number of items per sale
+        type: ratio
+        label: Average Items per Sale
+        numerator: total_items_sold
+        denominator: total_gross_sales
   - name: fct_orders
-    description: orders fact table
+    description: "orders fact tableorders fact tableOrder fact table at the order level.  This table contains one row\nper order and includes the order key\n"
     columns:
       - name: order_key
         description: primary key of the model
         data_tests:
           - unique
           - not_null
+        entity:
+          type: primary
+          name: customer_order
       - name: customer_key
         description: foreign key for customers
         data_tests:
@@ -206,14 +295,26 @@ models:
               arguments:
                 to: ref('dim_customers')
                 field: customer_key
+        entity:
+          type: foreign
+          name: customer
       - name: order_date
         description: date of the order
       - name: status_code
         description: status of the order
+        dimension:
+          type: categorical
+          name: order_status_code
       - name: priority_code
         description: code associated with the order
+        dimension:
+          type: categorical
+          name: order_priority_code
       - name: clerk_name
         description: id of the clerk
+        dimension:
+          type: categorical
+          name: clerk_on_order
       - name: ship_priority
         description: numeric representation of the shipping priority, zero being the default
       - name: order_count
@@ -228,3 +329,67 @@ models:
         description: '{{ doc("item_tax_amount") }}'
       - name: net_item_sales_amount
         description: '{{ doc("net_item_sales_amount") }}'
+      - name: order_time
+        dimension:
+          type: time
+        granularity: hour
+    semantic_model:
+      enabled: true
+      name: fct_orders
+    agg_time_dimension: order_time
+    metrics:
+      - name: total_revenue
+        description: The total revenue for the business
+        type: simple
+        label: Total Revenue
+        agg: sum
+        expr: gross_item_sales_amount
+      - name: total_customers
+        description: The total customers for the business
+        type: simple
+        label: Total Customers
+        agg: count_distinct
+        expr: customer_key
+      - name: total_revenue_1
+        agg: sum
+        expr: gross_item_sales_amount
+        type: simple
+        hidden: true
+      - name: cumulative_revenue_total
+        description: The cumulative revenue for the business
+        type: cumulative
+        label: Cumulative Revenue (All-Time)
+        input_metric: total_revenue_1
+      - name: cumulative_revenue_ttm
+        description: Cumulative revenue for the trailing twelve months
+        type: cumulative
+        label: Cumulative Revenue (TTM)
+        window: 12 months
+        period_agg: first
+        input_metric: total_revenue_1
+      - name: total_customers_1
+        agg: count_distinct
+        expr: customer_key
+
+        type: simple
+        hidden: true
+      - name: weekly_customers
+        description: Number of active weekly customers
+        type: cumulative
+        label: Weekly Active Customers
+        window: 7 days
+        period_agg: first
+        input_metric: total_customers_1
+      - name: monthly_customers
+        description: Number of active monthly customers
+        type: cumulative
+        label: Monthly Active Customers
+        window: 1 month
+        period_agg: first
+        input_metric: total_customers_1
+      - name: average_revenue_per_customer
+        description: The average revenue per customer
+        type: ratio
+        label: Average Revenue per Customer
+        numerator: total_revenue
+        denominator: total_customers

@@ -40,7 +40,7 @@ final as (
         customer_flags.lifetime_value,
         customer_flags.is_high_value,
         customer_flags.is_mid_value,
-        customer_flags.is_low_value
+        customer_flags.is_low_value,
     from
         customer
         inner join nation

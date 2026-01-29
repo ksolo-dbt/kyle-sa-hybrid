@@ -420,6 +420,35 @@ metrics:
       - name: total_expense
         alias: expense
 
+  # Year-over-year comparison metrics
+  # Compare previous month's total profit to the same month last year
+  - name: total_profit_yoy_difference
+    description: Absolute difference between previous month's total profit and same month last year
+    type: derived
+    label: Total Profit YoY Difference ($)
+    expr: prev_month_profit - prev_month_profit_last_year
+    input_metrics:
+      - name: total_profit
+        alias: prev_month_profit
+        offset_window: 1 month
+      - name: total_profit
+        alias: prev_month_profit_last_year
+        offset_window: 13 months
+
+  - name: total_profit_yoy_pct_change
+    description: Percentage change between previous month's total profit and same month last year
+    type: derived
+    label: Total Profit YoY % Change
+    expr: (prev_month_profit - prev_month_profit_last_year) / NULLIF(prev_month_profit_last_year, 0) * 100
+    input_metrics:
+      - name: total_profit
+        alias: prev_month_profit
+        offset_window: 1 month
+      - name: total_profit
+        alias: prev_month_profit_last_year
+        offset_window: 13 months
+  # End of year-over-year comparison metrics
+
 # Saved queries for metric exports
 saved_queries:
   - name: metrics_sales_by_region

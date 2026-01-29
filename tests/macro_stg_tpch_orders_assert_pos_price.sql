@@ -7,4 +7,4 @@
 }}
 
 
-{{ test_all_values_gte_zero('stg_tpch_orders', 'total_price_new') }}
+{{ test_all_values_gte_zero('stg_tpch_orders', 'total_price') }}

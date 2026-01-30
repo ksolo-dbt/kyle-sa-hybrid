@@ -422,29 +422,29 @@ metrics:
 
   # Year-over-year comparison metrics
   # Compare current period's total profit to the same period last year
-  - name: total_profit_yoy_difference
-    description: Absolute difference between current period's total profit and same period last year
-    type: derived
-    label: Total Profit YoY Difference ($)
-    expr: current_profit - profit_last_year
-    input_metrics:
-      - name: total_profit
-        alias: current_profit
-      - name: total_profit
-        alias: profit_last_year
-        offset_window: 12 months
+  # - name: total_profit_yoy_difference
+  #   description: Absolute difference between current period's total profit and same period last year
+  #   type: derived
+  #   label: Total Profit YoY Difference ($)
+  #   expr: current_profit - profit_last_year
+  #   input_metrics:
+  #     - name: total_profit
+  #       alias: current_profit
+  #     - name: total_profit
+  #       alias: profit_last_year
+  #       offset_window: 12 months
 
-  - name: total_profit_yoy_pct_change
-    description: Percentage change between current period's total profit and same period last year
-    type: derived
-    label: Total Profit YoY % Change
-    expr: (current_profit - profit_last_year) / NULLIF(profit_last_year, 0) * 100
-    input_metrics:
-      - name: total_profit
-        alias: current_profit
-      - name: total_profit
-        alias: profit_last_year
-        offset_window: 12 months
+  # - name: total_profit_yoy_pct_change
+  #   description: Percentage change between current period's total profit and same period last year
+  #   type: derived
+  #   label: Total Profit YoY % Change
+  #   expr: (current_profit - profit_last_year) / NULLIF(profit_last_year, 0) * 100
+  #   input_metrics:
+  #     - name: total_profit
+  #       alias: current_profit
+  #     - name: total_profit
+  #       alias: profit_last_year
+  #       offset_window: 12 months
   # End of year-over-year comparison metrics
 
 # Saved queries for metric exports

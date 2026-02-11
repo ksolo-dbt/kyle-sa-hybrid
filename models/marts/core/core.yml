@@ -346,6 +346,11 @@ models:
         dimension:
           type: time
         granularity: hour
+      - name: order_month
+        description: Order date truncated to month for monthly grouping (e.g. in Google Sheets)
+        dimension:
+          type: time
+        granularity: month
     semantic_model:
       enabled: true
       name: fct_orders
@@ -477,6 +482,21 @@ saved_queries:
         - "TimeDimension('metric_time', 'day')"
     exports:
       - name: cumulative_revenue
+        config:
+          export_as: table
+          schema: aa_metrics
+
+  # YoY metrics by month - must use metric_time (not Order Time) for offset metrics
+  - name: metrics_profit_yoy_by_month
+    description: Total profit YoY difference and % change by month (for tools that support saved queries)
+    query_params:
+      metrics:
+        - total_profit_yoy_difference
+        - total_profit_yoy_pct_change
+      group_by:
+        - "TimeDimension('metric_time', 'month')"
+    exports:
+      - name: profit_yoy_by_month
         config:
           export_as: table
           schema: aa_metrics

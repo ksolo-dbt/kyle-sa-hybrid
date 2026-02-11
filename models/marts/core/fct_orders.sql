@@ -34,6 +34,7 @@ final as (
         orders.order_key, 
         orders.order_date,
         orders.order_time,
+        date_trunc('month', orders.order_time) as order_month,
         orders.customer_key,
         orders.status_code,
         orders.priority_code,

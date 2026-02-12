@@ -487,14 +487,18 @@ saved_queries:
           schema: aa_metrics
 
   # YoY metrics by month - must use metric_time (not Order Time) for offset metrics
+  # Includes dimension breakdowns (region, nation, market segment) so BI users can filter or hide as needed
   - name: metrics_profit_yoy_by_month
-    description: Total profit YoY difference and % change by month (for tools that support saved queries)
+    description: Total profit YoY difference and % change by month with customer dimension breakdowns (region, nation, market segment)
     query_params:
       metrics:
         - total_profit_yoy_difference
         - total_profit_yoy_pct_change
       group_by:
         - "TimeDimension('metric_time', 'month')"
+        - "Dimension('customer__customer_region')"
+        - "Dimension('customer__customer_nation')"
+        - "Dimension('customer__customer_market_segment')"
     exports:
       - name: profit_yoy_by_month
         config:
